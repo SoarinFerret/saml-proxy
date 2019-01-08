@@ -33,10 +33,10 @@ if ! echo "$BASEURL" | grep -q '^https\?://'; then
     exit 1
 fi
 
-HOST="$(echo "$BASEURL" | sed 's#^[a-z]*://\([^/]*\).*#\1#')"
+HOST="$(echo "$BASEURL" | sed 's#^[a-z]*://\([^:/]*\).*#\1#')"
 BASEURL="$(echo "$BASEURL" | sed 's#/$##')"
 
-OUTFILE="saml_sp"
+OUTFILE="$(echo "$ENTITYID" | sed 's/[^0-9A-Za-z.]/_/g' | sed 's/__*/_/g')"
 echo "Output files:"
 echo "Private key:               $OUTFILE.key"
 echo "Certificate:               $OUTFILE.cert"
@@ -64,9 +64,9 @@ policy             = policy_anything
 [req_distinguished_name]
 commonName         = $HOST
 EOF
-
-openssl req -utf8 -batch -config "$TEMPLATEFILE" -new -x509 -days 3652 -nodes -out "$OUTFILE.cert" -keyout "$OUTFILE.key" 2>/dev/null
-
+echo -e "here!"
+openssl req -utf8 -batch -config "$TEMPLATEFILE" -new -x509 -days 3652 -nodes -out "$OUTFILE.cert" -keyout "$OUTFILE.key" 
+echo -e "here!"
 rm -f "$TEMPLATEFILE"
 
 CERT="$(grep -v '^-----' "$OUTFILE.cert")"
@@ -90,3 +90,5 @@ EOF
 umask 0777
 chmod go+r "$OUTFILE.xml"
 chmod go+r "$OUTFILE.cert"
+
+echo -e "here!"

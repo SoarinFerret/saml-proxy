@@ -16,16 +16,17 @@ Environment variables:
 * `BACKEND` - to requests are proxied to (_mandatory_)
 * `PROXY_HOST` - the hostname the proxy is available - falls back to the host name of the container.
 * `SCHEMA` - the schema via the proxy is available (defaults to `https`) - _Note:_ This is not the protocol how the proxy accepts. SSL termination is not a responsibility of this image.
+* `IDP_XML_URL` - the url containg the IDP Metadata file, if that is an option for you
 * `REMOTE_USER_EMAIL_SAML_ATTRIBUTE` - the SAML attribute to be sent as `Remote-User-Name header`
 * `REMOTE_USER_NAME_SAML_ATTRIBUTE` - the SAML attribute to be sent as `Remote-User-Email`
 * `REMOTE_USER_PREFERRED_USERNAME_SAML_ATTRIBUTE` - the SAML attribute to be sent as `Remote-User-Preferred-Username`
 * `SAML_MAP_<<sampl_field>>` - this will map the `saml_field` to a request header specified by the property. Eg: `SAML_MAP_EmailAddress=X-WEBAUTH-USER` will map `EmailAddress` SAML field to `X-WEBAUTH-USER` request header.
 
 Volumes:
-* `/etc/httpd/conf.d/saml_idp.xml` - SAML IPD metadata (_mandatory_)
-* `/etc/httpd/conf.d/saml_sp.key` - SAML SP key (generated if not provided)
-* `/etc/httpd/conf.d/saml_sp.cert` - SAML SP certificate (generated if not provided)
-* `/etc/httpd/conf.d/saml_sp.xml` - SAML SP metadata (generated if not provided)
+I recommend just using a docker volume for `/etc/httpd/mellon` so you can back your certificates and metadata files up.
+* `/etc/httpd/mellon/saml_idp.xml` - SAML IPD metadata (_mandatory_)
+* `/etc/httpd/mellon/saml_sp.key` - SAML SP key (generated if not provided)
+* `/etc/httpd/mellon/saml_sp.cert` - SAML SP certificate (generated if not provided)
 
 # Example Use
 
@@ -46,9 +47,9 @@ An example IDP can be created at https://auth0.com/. After creating an account, 
 
     * Usage > Identity Provider Metadata*: Download the metadata xml and make it available as volume.
 
-## Bitium
+## ADFS
 
-TODO
+Just go to http://sts.example.com/federationmetadata/2007-06/federationmetadata.xml to download your metadata.
 
 ## Configuration
 
@@ -58,20 +59,20 @@ TODO
 docker run \
   -p 80:80 \
   -h auth.example.com \
-  -v <path>/saml_idp.xml:/etc/httpd/conf.d/saml_idp.xml \
+  -v <path>:/etc/httpd/mellon \
   -e BACKEND=https://api.example.com:8443 \
   -e SCHEMA=http  \
   -ti
-  barnabassudy/saml-proxy
+  SoarinFerret/saml-proxy
 ```
 
 * `-p 80:80` - port is mapped to localhost:80
 * `-h auth.example.com` is equivalent with `-e PROXY_HOST=auth.example.com` - waits for requests for this host and will redirect to this host
-* `-v <path>/saml_idp.xml:/etc/httpd/conf.d/saml_idp.xml` - provides the SAML metadata as volume
+* `-v <path>:/etc/httpd/mellon` - backs up the SAML certs and XML files
 * `-e BACKEND=https://api.example.com:8443` - the url the requests should be proxied to
 * `-e SCHEMA=http`
 * `-ti` - make it interactive (eg. being able to stop it with Ctrl+C)
-* `barnabassudy/saml-proxy` - the name of the Docker image
+* `SoarinFerret/saml-proxy` - the name of the Docker image
 
 ### Docker Compose
 
@@ -81,7 +82,7 @@ services:
   yourservice:
       ...
   saml-proxy:
-      image: "barnabassudy/saml-proxy"
+      image: "SoarinFerret/saml-proxy"
       environment:
           BACKEND: "http://yourservice:port"
       ports:
