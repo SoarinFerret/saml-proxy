@@ -3,7 +3,7 @@ FROM centos:7
 RUN yum install -y \
   openssl \
   httpd \
-  mod_auth_mellon \
+  mod_auth_mellon-diagnostics \
   mod_ssl \
   gettext \
   wget \
