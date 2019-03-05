@@ -19,6 +19,8 @@ RUN chmod +x /usr/sbin/mellon_create_metadata.sh
 # Add conf file for Apache
 ADD proxy.conf /etc/httpd/conf.d/proxy.conf.template
 
+RUN echo 'LoadModule auth_mellon_module modules/mod_auth_mellon-diagnostics.so' > /etc/httpd/conf.modules.d/10-auth_mellon.conf
+
 EXPOSE 80
 
 ADD configure /usr/sbin/configure
