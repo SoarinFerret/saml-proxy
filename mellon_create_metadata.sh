@@ -64,9 +64,9 @@ policy             = policy_anything
 [req_distinguished_name]
 commonName         = $HOST
 EOF
-echo -e "here!"
-openssl req -utf8 -batch -config "$TEMPLATEFILE" -new -x509 -days 3652 -nodes -out "$OUTFILE.cert" -keyout "$OUTFILE.key" 
-echo -e "here!"
+
+openssl req -utf8 -batch -config "$TEMPLATEFILE" -new -x509 -days 3652 -nodes -out "$OUTFILE.cert" -keyout "$OUTFILE.key"
+
 rm -f "$TEMPLATEFILE"
 
 CERT="$(grep -v '^-----' "$OUTFILE.cert")"
@@ -90,5 +90,3 @@ EOF
 umask 0777
 chmod go+r "$OUTFILE.xml"
 chmod go+r "$OUTFILE.cert"
-
-echo -e "here!"
