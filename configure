@@ -46,6 +46,12 @@ if [ -z "$BACKEND" ]; then
     exit 1
 fi
 
+# Generate basic auth user
+if [ -n "$BASIC_AUTH_PASSWORD" ]; then
+    echo "Generating basic auth password file"
+    htpasswd -bB -c /etc/httpd/conf/passwords automation $BASIC_AUTH_PASSWORD
+fi
+
 
 # Get environment
 export REAL_HOST=`hostname -f`
